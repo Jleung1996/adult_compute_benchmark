@@ -489,6 +489,39 @@
         </div>
       </details>
     </section>
+
+    <!-- 5. TABARENA LEADERBOARD TOP 10 -->
+    <section id="tabarena">
+      <h2><span class="step">5</span> TabArena Leaderboard — Top 10 Models, Elo &amp; License</h2>
+      <p style="margin-top: 0; color: var(--muted); font-size: 0.9rem;">
+        Snapshot from <a href="https://huggingface.co/spaces/TabArena/leaderboard" target="_blank" style="color: var(--accent);">huggingface.co/spaces/TabArena/leaderboard</a> (retrieved 2026-11-17). Models marked with <code>$</code> on TabArena carry a <strong>non-commercial</strong> license (free for research/evaluation only; commercial use requires a license). Models without <code>$</code> are <strong>free / open</strong> for commercial use as well.
+      </p>
+
+      <div class="controls">
+        <div class="btn-group" id="taFilterGroup">
+          <button class="active" data-tafilter="all">All Top 10 (10)</button>
+          <button data-tafilter="free">Free / Commercial OK (4)</button>
+          <button data-tafilter="noncommercial">Non-Commercial Only $ (6)</button>
+        </div>
+      </div>
+
+      <table id="tabarenaTable">
+        <thead>
+          <tr>
+            <th class="num" data-tasort="rank">#</th>
+            <th data-tasort="name">Model</th>
+            <th data-tasort="org">Organization</th>
+            <th class="num" data-tasort="elo">Elo (95% CI)</th>
+            <th class="num" data-tasort="improv">Improv. (%)</th>
+            <th class="num" data-tasort="fit">Fit (s/1K)</th>
+            <th class="num" data-tasort="infer">Infer (s/1K)</th>
+            <th data-tasort="free">Free / Commercial?</th>
+            <th>License Note</th>
+          </tr>
+        </thead>
+        <tbody id="tabarenaBody"></tbody>
+      </table>
+    </section>
   </div>
 
   <div class="tooltip" id="tooltip"></div>
@@ -767,6 +800,76 @@
 
     renderRuntime();
     renderPerformance();
+
+    const tabarenaTop10 = [
+      { rank: 1, name: "LimiX-2-1016", org: "Stable AI & Tsinghua University", elo: 2000, ci: "+140 / −87", improv: 3.5, fit: 31.24, infer: 8.398, free: false, license: "StableAI LimiX Non-Commercial License v1.0 ($)" },
+      { rank: 2, name: "Kumo-Tabular", org: "NVIDIA", elo: 1973, ci: "+158 / −97", improv: 4.5, fit: 2.39, infer: 0.253, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 3, name: "Kumo-Tabular-Medium", org: "NVIDIA", elo: 1909, ci: "+103 / −74", improv: 6.0, fit: 1.37, infer: 0.151, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 4, name: "Seldon", org: "Neuralk-AI", elo: 1905, ci: "+150 / −99", improv: 5.4, fit: 1.78, infer: 0.124, free: false, license: "Seldon Research and Evaluation License ($)" },
+      { rank: 5, name: "TabPFN-3.5", org: "Prior Labs", elo: 1869, ci: "+98 / −64", improv: 7.6, fit: 1.84, infer: 0.473, free: false, license: "TabPFN-3.5 License v1.0 (non-commercial) ($)" },
+      { rank: 6, name: "Inpriora", org: "Inpriora (Ant Group)", elo: 1831, ci: "+97 / −64", improv: 7.5, fit: 1.07, infer: 0.063, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 7, name: "Seldon-Mini", org: "Neuralk-AI", elo: 1818, ci: "+84 / −64", improv: 8.3, fit: 0.56, infer: 0.036, free: false, license: "Seldon Research and Evaluation License ($)" },
+      { rank: 8, name: "Kumo-Tabular-Small", org: "NVIDIA", elo: 1801, ci: "+77 / −54", improv: 9.0, fit: 0.80, infer: 0.092, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 9, name: "TabFM", org: "Google Research", elo: 1792, ci: "+101 / −98", improv: 6.6, fit: 16.12, infer: 6.653, free: false, license: "TabFM Non-Commercial License v1.0 ($)" },
+      { rank: 10, name: "Causilo", org: "Nums AI", elo: 1785, ci: "+78 / −49", improv: 9.2, fit: 0.68, infer: 0.104, free: false, license: "Causilo License v1.0 (non-commercial weights) ($)" },
+    ];
+
+    let taFilter = "all";
+    let taSortKey = "rank";
+    let taSortAsc = true;
+
+    function renderTabArena() {
+      let rows = tabarenaTop10.filter(r =>
+        taFilter === "all" ? true : taFilter === "free" ? r.free : !r.free
+      );
+      rows = [...rows].sort((a, b) => {
+        const va = a[taSortKey], vb = b[taSortKey];
+        if (typeof va === "string") return taSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        if (typeof va === "boolean") return taSortAsc ? (va === vb ? 0 : va ? -1 : 1) : (va === vb ? 0 : va ? 1 : -1);
+        return taSortAsc ? va - vb : vb - va;
+      });
+
+      document.getElementById("tabarenaBody").innerHTML = rows.map(r => {
+        const statusBadge = r.free
+          ? `<span class="badge badge-cuda">Free (Commercial OK)</span>`
+          : `<span class="badge badge-cpu">Non-Commercial ($)</span>`;
+        const testedTag = (r.name === "Kumo-Tabular-Medium" || r.name === "Kumo-Tabular-Small")
+          ? ` <span class="badge badge-tree">In Notebook</span>` : "";
+        return `
+          <tr>
+            <td class="num"><strong>${r.rank}</strong></td>
+            <td><strong>${r.name}</strong>${testedTag}</td>
+            <td style="color:var(--muted);">${r.org}</td>
+            <td class="num"><strong>${r.elo}</strong> <span style="color:var(--muted); font-size:0.8rem;">(${r.ci})</span></td>
+            <td class="num">${r.improv.toFixed(1)}%</td>
+            <td class="num">${r.fit.toFixed(2)}</td>
+            <td class="num">${r.infer.toFixed(3)}</td>
+            <td>${statusBadge}</td>
+            <td style="color:var(--muted); font-size:0.83rem;">${r.license}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.querySelectorAll("#taFilterGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#taFilterGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        taFilter = btn.dataset.tafilter;
+        renderTabArena();
+      });
+    });
+
+    document.querySelectorAll("#tabarenaTable th[data-tasort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.tasort;
+        if (taSortKey === key) taSortAsc = !taSortAsc;
+        else { taSortKey = key; taSortAsc = key === "rank" || key === "name" || key === "org" || key === "improv"; }
+        renderTabArena();
+      });
+    });
+
+    renderTabArena();
   </script>
 </body>
 </html>
