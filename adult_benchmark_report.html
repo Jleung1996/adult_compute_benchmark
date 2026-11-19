@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenML Adult (ID 179) — Hardware, Runtime &amp; Model Performance Report</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --surface: #131a2e;
+      --surface-2: #1a233d;
+      --border: #273356;
+      --text: #e6ecf8;
+      --muted: #9aa7c7;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --warn: #fbbf24;
+      --orange: #fb923c;
+      --purple: #a78bfa;
+      --rose: #fb7185;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at top right, #16213e 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 28px 20px 64px;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2 .step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(96, 165, 250, 0.16);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 4px 0;
+    }
+
+    .stat-sub {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .bar-track {
+      height: 12px;
+      background: #0d1324;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+      display: flex;
+    }
+
+    .bar-fill-primary { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; }
+    .bar-fill-green { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; }
+    .bar-fill-orange { background: linear-gradient(90deg, #f97316, #fb923c); height: 100%; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .btn-group {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    button {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:hover { color: var(--text); }
+    button.active {
+      background: var(--accent);
+      color: #071226;
+    }
+
+    .chart-box {
+      background: #0e1528;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 16px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover { color: var(--text); }
+    th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:hover td { background: rgba(96, 165, 250, 0.06); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    .badge-cuda { background: rgba(52, 211, 153, 0.16); color: var(--accent-2); }
+    .badge-cpu { background: rgba(251, 146, 60, 0.16); color: var(--orange); }
+    .badge-tree { background: rgba(167, 139, 250, 0.16); color: var(--purple); }
+    .best-cell { color: var(--accent-2); font-weight: 700; }
+
+    details {
+      margin-top: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #0a0f1e;
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>OpenML Adult (ID 179) — Benchmark Report</h1>
+        <p class="subtitle">Dataset profile, local CUDA &amp; CPU memory specs, runtime speedups, and model performance comparison</p>
+      </div>
+      <div class="pill-row">
+        <span class="pill">OpenML did=179</span>
+        <span class="pill">48,842 rows × 14 features</span>
+        <span class="pill">80/20 Stratified Split</span>
+        <span class="pill">n_estimators = 4 (TFMs)</span>
+      </div>
+    </header>
+
+    <!-- 1. DATASET OVERVIEW -->
+    <section id="dataset">
+      <h2><span class="step">1</span> Dataset Overview: OpenML Adult (ID 179)</h2>
+      <p style="margin-top: 0; color: var(--muted);">
+        The <strong>Adult</strong> dataset (OpenML <code>did=179</code>) originates from the <strong>1994 U.S. Census Bureau database</strong> (donated via the UCI Machine Learning Repository by Ronny Kohavi and Barry Becker). The prediction task is binary income classification: predicting whether an individual earns more than $50,000 per year based on demographic and employment attributes.
+      </p>
+
+      <div class="grid-4">
+        <div class="card">
+          <div class="stat-label">Total Rows</div>
+          <div class="stat-value">48,842</div>
+          <div class="stat-sub">39,073 train (80%) &middot; 9,769 test (20%)</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Feature Columns</div>
+          <div class="stat-value">14</div>
+          <div class="stat-sub">2 numeric &middot; 12 categorical (binned)</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Target (<code>y = class</code>)</div>
+          <div class="stat-value">&gt;50K vs &le;50K</div>
+          <div class="stat-sub">Mapped to <code>1</code> (&gt;50K) / <code>0</code> (&le;50K)</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Positive Rate (<code>&gt;50K</code>)</div>
+          <div class="stat-value">23.93%</div>
+          <div class="stat-sub">11,687 positive &middot; 37,155 negative</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; font-size:0.86rem;">
+          <span><strong>Target Class Distribution (<code>y</code>):</strong> <code>&le;50K</code> (0) — 37,155 rows (76.07%)</span>
+          <span><code>&gt;50K</code> (1) — 11,687 rows (23.93%)</span>
+        </div>
+        <div class="bar-track" style="height: 16px;">
+          <div class="bar-fill-primary" style="width: 76.07%;" title="<=50K: 37,155 (76.07%)"></div>
+          <div class="bar-fill-green" style="width: 23.93%;" title=">50K: 11,687 (23.93%)"></div>
+        </div>
+        <div class="stat-sub">
+          Note: In OpenML <code>did=179</code>, <code>age</code>, <code>capitalgain</code>, <code>capitalloss</code>, and <code>hoursperweek</code> are pre-discretized into 5 categorical bins (unlike raw UCI Adult / OpenML <code>did=1590</code>).
+        </div>
+      </div>
+
+      <details>
+        <summary>Inspect all 14 features (types, missing values, unique counts)</summary>
+        <table style="margin-top: 10px;">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Dtype</th>
+              <th>Type</th>
+              <th class="num">Missing Count</th>
+              <th class="num">Missing %</th>
+              <th class="num">Unique Values</th>
+            </tr>
+          </thead>
+          <tbody id="schemaBody"></tbody>
+        </table>
+      </details>
+    </section>
+
+    <!-- 2. HARDWARE & MEMORY -->
+    <section id="hardware">
+      <h2><span class="step">2</span> System Hardware: CUDA Memory &amp; CPU Memory</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="stat-label">CUDA GPU Memory (VRAM)</span>
+            <span class="badge badge-cuda">PyTorch 2.14.1+cu126</span>
+          </div>
+          <div class="stat-value">8 GB</div>
+          <div class="stat-sub"><strong>NVIDIA GeForce RTX 3070</strong> &middot; Driver 621.14</div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="stat-label">CPU &amp; System Memory (RAM)</span>
+            <span class="badge badge-cpu">8 Cores / 16 Threads</span>
+          </div>
+          <div class="stat-value">34 GB</div>
+          <div class="stat-sub"><strong>AMD Ryzen 7 5800X 8-Core Processor</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. RUNTIME COMPARISONS -->
+    <section id="runtime">
+      <h2><span class="step">3</span> Runtime Comparisons (CUDA vs. CPU)</h2>
+      <div class="controls">
+        <div class="btn-group" id="rtScaleGroup">
+          <button class="active" data-scale="linear">Linear Scale (sec)</button>
+          <button data-scale="log">Log Scale (sec)</button>
+        </div>
+        <div class="btn-group" id="rtFilterGroup">
+          <button class="active" data-rtfilter="all">All Devices</button>
+          <button data-rtfilter="cuda">CUDA Only</button>
+          <button data-rtfilter="cpu">CPU Only</button>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <svg id="runtimeSvg" width="1080" height="310" viewBox="0 0 1080 310" style="max-width:100%; height:auto;"></svg>
+        <div class="legend">
+          <span class="legend-item"><span class="swatch" style="background:#60a5fa;"></span> Fit / Prep (sec)</span>
+          <span class="legend-item"><span class="swatch" style="background:#fb923c;"></span> Predict / Inference (sec)</span>
+          <span class="legend-item" style="margin-left:auto;">Hover bars for exact timings &amp; CUDA speedup</span>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Model &amp; Device</th>
+            <th>Device</th>
+            <th class="num">Fit / Prep (s)</th>
+            <th class="num">Predict (s)</th>
+            <th class="num">Total (s)</th>
+            <th class="num">CUDA Speedup (Total / Inf)</th>
+          </tr>
+        </thead>
+        <tbody id="runtimeBody"></tbody>
+      </table>
+    </section>
+
+    <!-- 4. MODEL PERFORMANCE COMPARISONS -->
+    <section id="performance">
+      <h2><span class="step">4</span> Hold-Out Test Performance Comparisons</h2>
+      <div class="controls">
+        <div class="btn-group" id="metricGroup">
+          <button class="active" data-metric="roc_auc">ROC-AUC</button>
+          <button data-metric="accuracy">Accuracy</button>
+          <button data-metric="balanced_accuracy">Balanced Acc</button>
+          <button data-metric="log_loss">Log Loss (lower better)</button>
+        </div>
+        <div class="btn-group" id="zoomGroup">
+          <button class="active" data-zoom="tight">Zoomed Range</button>
+          <button data-zoom="full">0.0 – 1.0 Scale</button>
+        </div>
+        <div class="btn-group" id="perfFilterGroup">
+          <button class="active" data-perffilter="all">All Models</button>
+          <button data-perffilter="gpu_tree">XGBoost + CUDA TFMs</button>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <svg id="perfSvg" width="1080" height="300" viewBox="0 0 1080 300" style="max-width:100%; height:auto;"></svg>
+      </div>
+
+      <table id="perfTable">
+        <thead>
+          <tr>
+            <th data-sort="name">Model</th>
+            <th data-sort="family">Family / Device</th>
+            <th class="num" data-sort="roc_auc">ROC-AUC</th>
+            <th class="num" data-sort="accuracy">Accuracy</th>
+            <th class="num" data-sort="balanced_accuracy">Balanced Acc</th>
+            <th class="num" data-sort="log_loss">Log Loss</th>
+          </tr>
+        </thead>
+        <tbody id="perfBody"></tbody>
+      </table>
+
+      <details>
+        <summary>Confusion Matrix &amp; Classification Report — Kumo-Tabular-Medium (CUDA, n_test = 9,769)</summary>
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="card">
+            <div class="stat-label" style="margin-bottom:8px;">Confusion Matrix</div>
+            <table>
+              <thead>
+                <tr><th>Actual \ Predicted</th><th class="num">&le;50K (0)</th><th class="num">&gt;50K (1)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>&le;50K (0)</strong></td><td class="num best-cell">6,968</td><td class="num">463</td></tr>
+                <tr><td><strong>&gt;50K (1)</strong></td><td class="num">872</td><td class="num best-cell">1,466</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="stat-label" style="margin-bottom:8px;">Per-Class Metrics</div>
+            <table>
+              <thead>
+                <tr><th>Class</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th><th class="num">Support</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>&le;50K</td><td class="num">0.89</td><td class="num">0.94</td><td class="num">0.91</td><td class="num">7,431</td></tr>
+                <tr><td>&gt;50K</td><td class="num">0.76</td><td class="num">0.63</td><td class="num">0.69</td><td class="num">2,338</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 5. TABARENA LEADERBOARD TOP 10 -->
+    <section id="tabarena">
+      <h2><span class="step">5</span> TabArena Leaderboard — Top 10 Models, Elo &amp; License</h2>
+      <p style="margin-top: 0; color: var(--muted); font-size: 0.9rem;">
+        Snapshot from <a href="https://huggingface.co/spaces/TabArena/leaderboard" target="_blank" style="color: var(--accent);">huggingface.co/spaces/TabArena/leaderboard</a> (retrieved 2026-11-17). Models marked with <code>$</code> on TabArena carry a <strong>non-commercial</strong> license (free for research/evaluation only; commercial use requires a license). Models without <code>$</code> are <strong>free / open</strong> for commercial use as well.
+      </p>
+
+      <div class="controls">
+        <div class="btn-group" id="taFilterGroup">
+          <button class="active" data-tafilter="all">All Top 10 (10)</button>
+          <button data-tafilter="free">Free / Commercial OK (4)</button>
+          <button data-tafilter="noncommercial">Non-Commercial Only $ (6)</button>
+        </div>
+      </div>
+
+      <table id="tabarenaTable">
+        <thead>
+          <tr>
+            <th class="num" data-tasort="rank">#</th>
+            <th data-tasort="name">Model</th>
+            <th data-tasort="org">Organization</th>
+            <th class="num" data-tasort="elo">Elo (95% CI)</th>
+            <th class="num" data-tasort="improv">Improv. (%)</th>
+            <th class="num" data-tasort="fit">Fit (s/1K)</th>
+            <th class="num" data-tasort="infer">Infer (s/1K)</th>
+            <th data-tasort="free">Free / Commercial?</th>
+            <th>License Note</th>
+          </tr>
+        </thead>
+        <tbody id="tabarenaBody"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    const schema = [
+      { col: "age", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 5 },
+      { col: "workclass", dtype: "category", cat: true, miss: 2799, pct: "5.73%", uniq: 8 },
+      { col: "fnlwgt", dtype: "float64", cat: false, miss: 0, pct: "0.00%", uniq: 28523 },
+      { col: "education", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 16 },
+      { col: "education-num", dtype: "uint8", cat: false, miss: 0, pct: "0.00%", uniq: 16 },
+      { col: "marital-status", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 7 },
+      { col: "occupation", dtype: "category", cat: true, miss: 2809, pct: "5.75%", uniq: 14 },
+      { col: "relationship", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 6 },
+      { col: "race", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 5 },
+      { col: "sex", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 2 },
+      { col: "capitalgain", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 5 },
+      { col: "capitalloss", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 5 },
+      { col: "hoursperweek", dtype: "category", cat: true, miss: 0, pct: "0.00%", uniq: 5 },
+      { col: "native-country", dtype: "category", cat: true, miss: 857, pct: "1.75%", uniq: 41 },
+    ];
+
+    const runtimes = [
+      { name: "TabICLv2 (CUDA)", device: "cuda", fit: 1.483, pred: 9.227, total: 10.710, speedup: "46.56x (53.92x inf)" },
+      { name: "TabICLv2 (CPU)", device: "cpu", fit: 1.225, pred: 497.486, total: 498.711, speedup: "—" },
+      { name: "Kumo-Tabular-Small (CUDA)", device: "cuda", fit: 2.211, pred: 9.530, total: 11.741, speedup: "36.79x (45.32x inf)" },
+      { name: "Kumo-Tabular-Small (CPU)", device: "cpu", fit: 0.079, pred: 431.861, total: 431.940, speedup: "—" },
+      { name: "Kumo-Tabular-Medium (CUDA)", device: "cuda", fit: 8.517, pred: 20.424, total: 28.942, speedup: "35.27x (49.97x inf)" },
+      { name: "Kumo-Tabular-Medium (CPU)", device: "cpu", fit: 0.149, pred: 1020.601, total: 1020.750, speedup: "—" },
+    ];
+
+    const performance = [
+      { name: "XGBoost (Default)", family: "tree", roc_auc: 0.91022, accuracy: 0.85526, balanced_accuracy: 0.77602, log_loss: 0.31323 },
+      { name: "XGBoost (Optuna)", family: "tree", roc_auc: 0.91698, accuracy: 0.86293, balanced_accuracy: 0.78312, log_loss: 0.29952 },
+      { name: "TabICLv2 (CUDA)", family: "cuda", roc_auc: 0.91511, accuracy: 0.86140, balanced_accuracy: 0.77625, log_loss: 0.30374 },
+      { name: "TabICLv2 (CPU)", family: "cpu", roc_auc: 0.91515, accuracy: 0.86171, balanced_accuracy: 0.78026, log_loss: 0.30342 },
+      { name: "Kumo-Tabular-Small (CUDA)", family: "cuda", roc_auc: 0.91638, accuracy: 0.86222, balanced_accuracy: 0.77957, log_loss: 0.30034 },
+      { name: "Kumo-Tabular-Small (CPU)", family: "cpu", roc_auc: 0.91628, accuracy: 0.86293, balanced_accuracy: 0.78151, log_loss: 0.30039 },
+      { name: "Kumo-Tabular-Medium (CUDA)", family: "cuda", roc_auc: 0.91708, accuracy: 0.86334, balanced_accuracy: 0.78236, log_loss: 0.29927 },
+      { name: "Kumo-Tabular-Medium (CPU)", family: "cpu", roc_auc: 0.91713, accuracy: 0.86263, balanced_accuracy: 0.78101, log_loss: 0.29908 },
+    ];
+
+    // Populate schema table
+    document.getElementById("schemaBody").innerHTML = schema.map(r => `
+      <tr>
+        <td><code>${r.col}</code></td>
+        <td>${r.dtype}</td>
+        <td>${r.cat ? "Categorical" : "Numeric"}</td>
+        <td class="num">${r.miss.toLocaleString()}</td>
+        <td class="num">${r.pct}</td>
+        <td class="num">${r.uniq.toLocaleString()}</td>
+      </tr>
+    `).join("");
+
+    const tooltip = document.getElementById("tooltip");
+    function showTip(evt, html) {
+      tooltip.innerHTML = html;
+      tooltip.style.left = (evt.clientX + 14) + "px";
+      tooltip.style.top = (evt.clientY - 12) + "px";
+      tooltip.style.opacity = 1;
+    }
+    function hideTip() { tooltip.style.opacity = 0; }
+
+    // Runtime state & render
+    let rtScale = "linear";
+    let rtFilter = "all";
+
+    function renderRuntime() {
+      const rows = runtimes.filter(r => rtFilter === "all" || r.device === rtFilter);
+      document.getElementById("runtimeBody").innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${r.name}</strong></td>
+          <td><span class="badge ${r.device === "cuda" ? "badge-cuda" : "badge-cpu"}">${r.device.toUpperCase()}</span></td>
+          <td class="num">${r.fit.toFixed(3)}</td>
+          <td class="num">${r.pred.toFixed(3)}</td>
+          <td class="num"><strong>${r.total.toFixed(3)}</strong></td>
+          <td class="num">${r.speedup}</td>
+        </tr>
+      `).join("");
+
+      const svg = document.getElementById("runtimeSvg");
+      const W = 1080, H = 310;
+      const pad = { l: 210, r: 90, t: 20, b: 36 };
+      const innerW = W - pad.l - pad.r;
+      const innerH = H - pad.t - pad.b;
+      const maxVal = Math.max(...rows.map(r => r.total));
+
+      function xScale(v) {
+        if (rtScale === "log") {
+          const lv = Math.log10(Math.max(v, 0.1) + 1);
+          const lmax = Math.log10(maxVal + 1);
+          return (lv / lmax) * innerW;
+        }
+        return (v / (maxVal * 1.08)) * innerW;
+      }
+
+      let html = "";
+      const ticks = rtScale === "log" ? [0, 5, 10, 30, 100, 300, 1000] : [0, 200, 400, 600, 800, 1000];
+      ticks.filter(t => t <= maxVal * 1.15).forEach(t => {
+        const x = pad.l + xScale(t);
+        html += `<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${H - pad.b}" stroke="#273356" stroke-dasharray="3,3" />`;
+        html += `<text x="${x}" y="${H - 12}" fill="#9aa7c7" font-size="11" text-anchor="middle">${t}s</text>`;
+      });
+
+      const barH = Math.min(30, Math.floor(innerH / rows.length) - 10);
+      const step = innerH / rows.length;
+      rows.forEach((r, i) => {
+        const y = pad.t + i * step + (step - barH) / 2;
+        const wTotal = xScale(r.total);
+        const wFit = r.total > 0 ? wTotal * (r.fit / r.total) : 0;
+        const wPred = wTotal - wFit;
+
+        html += `<text x="${pad.l - 12}" y="${y + barH / 2 + 4}" fill="#e6ecf8" font-size="12.5" font-weight="600" text-anchor="end">${r.name}</text>`;
+        html += `<g class="rt-bar" data-idx="${i}" style="cursor:pointer">
+          <rect x="${pad.l}" y="${y}" width="${Math.max(wFit, 1)}" height="${barH}" rx="3" fill="#60a5fa" />
+          <rect x="${pad.l + wFit}" y="${y}" width="${Math.max(wPred, 1)}" height="${barH}" rx="3" fill="#fb923c" />
+        </g>`;
+        html += `<text x="${pad.l + wTotal + 8}" y="${y + barH / 2 + 4}" fill="#9aa7c7" font-size="12">${r.total.toFixed(2)}s</text>`;
+      });
+
+      svg.innerHTML = html;
+      svg.querySelectorAll(".rt-bar").forEach(el => {
+        const r = rows[Number(el.dataset.idx)];
+        el.addEventListener("mousemove", e => showTip(e,
+          `<strong>${r.name}</strong><br/>Fit/Prep: ${r.fit.toFixed(3)}s<br/>Predict: ${r.pred.toFixed(3)}s<br/>Total: <strong>${r.total.toFixed(3)}s</strong>` +
+          (r.speedup !== "—" ? `<br/>CUDA Speedup: <span style="color:#34d399">${r.speedup}</span>` : "")
+        ));
+        el.addEventListener("mouseleave", hideTip);
+      });
+    }
+
+    // Performance state & render
+    let activeMetric = "roc_auc";
+    let zoomMode = "tight";
+    let perfFilter = "all";
+    let sortKey = "roc_auc";
+    let sortAsc = false;
+
+    const metricMeta = {
+      roc_auc: { label: "ROC-AUC", better: "max", color: "#60a5fa" },
+      accuracy: { label: "Accuracy", better: "max", color: "#34d399" },
+      balanced_accuracy: { label: "Balanced Accuracy", better: "max", color: "#a78bfa" },
+      log_loss: { label: "Log Loss (lower is better)", better: "min", color: "#fb923c" },
+    };
+
+    function renderPerformance() {
+      let rows = performance.filter(r => perfFilter === "all" || r.family !== "cpu");
+      rows = [...rows].sort((a, b) => {
+        const va = a[sortKey], vb = b[sortKey];
+        if (typeof va === "string") return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        return sortAsc ? va - vb : vb - va;
+      });
+
+      const bestRoc = Math.max(...rows.map(r => r.roc_auc));
+      const bestAcc = Math.max(...rows.map(r => r.accuracy));
+      const bestBal = Math.max(...rows.map(r => r.balanced_accuracy));
+      const bestLoss = Math.min(...rows.map(r => r.log_loss));
+
+      document.getElementById("perfBody").innerHTML = rows.map(r => {
+        const badge = r.family === "cuda" ? "badge-cuda" : r.family === "cpu" ? "badge-cpu" : "badge-tree";
+        const famLabel = r.family === "tree" ? "GBDT" : r.family.toUpperCase();
+        return `
+          <tr>
+            <td><strong>${r.name}</strong></td>
+            <td><span class="badge ${badge}">${famLabel}</span></td>
+            <td class="num ${r.roc_auc === bestRoc ? "best-cell" : ""}">${r.roc_auc.toFixed(5)}</td>
+            <td class="num ${r.accuracy === bestAcc ? "best-cell" : ""}">${r.accuracy.toFixed(5)}</td>
+            <td class="num ${r.balanced_accuracy === bestBal ? "best-cell" : ""}">${r.balanced_accuracy.toFixed(5)}</td>
+            <td class="num ${r.log_loss === bestLoss ? "best-cell" : ""}">${r.log_loss.toFixed(5)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const svg = document.getElementById("perfSvg");
+      const W = 1080, H = 300;
+      const pad = { l: 215, r: 85, t: 22, b: 36 };
+      const innerW = W - pad.l - pad.r;
+      const innerH = H - pad.t - pad.b;
+
+      const vals = rows.map(r => r[activeMetric]);
+      const rawMin = Math.min(...vals);
+      const rawMax = Math.max(...vals);
+      const span = Math.max(rawMax - rawMin, 0.002);
+      const minV = zoomMode === "tight" ? Math.max(0, rawMin - span * 0.35) : 0;
+      const maxV = zoomMode === "tight" ? rawMax + span * 0.25 : 1.0;
+
+      let html = "";
+      for (let i = 0; i <= 5; i++) {
+        const v = minV + ((maxV - minV) * i) / 5;
+        const x = pad.l + (i / 5) * innerW;
+        html += `<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${H - pad.b}" stroke="#273356" stroke-dasharray="3,3" />`;
+        html += `<text x="${x}" y="${H - 12}" fill="#9aa7c7" font-size="11" text-anchor="middle">${v.toFixed(4)}</text>`;
+      }
+
+      const barH = Math.min(24, Math.floor(innerH / rows.length) - 7);
+      const step = innerH / rows.length;
+      const meta = metricMeta[activeMetric];
+      const bestVal = meta.better === "max" ? rawMax : rawMin;
+
+      rows.forEach((r, i) => {
+        const y = pad.t + i * step + (step - barH) / 2;
+        const v = r[activeMetric];
+        const w = Math.max(4, ((v - minV) / (maxV - minV)) * innerW);
+        const isBest = v === bestVal;
+        const fill = isBest ? "#34d399" : meta.color;
+
+        html += `<text x="${pad.l - 12}" y="${y + barH / 2 + 4}" fill="#e6ecf8" font-size="12" font-weight="600" text-anchor="end">${r.name}</text>`;
+        html += `<rect class="perf-bar" data-idx="${i}" x="${pad.l}" y="${y}" width="${w}" height="${barH}" rx="4" fill="${fill}" opacity="${isBest ? 1 : 0.85}" style="cursor:pointer" />`;
+        html += `<text x="${pad.l + w + 8}" y="${y + barH / 2 + 4}" fill="${isBest ? "#34d399" : "#9aa7c7"}" font-size="12" font-weight="${isBest ? "700" : "500"}">${v.toFixed(5)}</text>`;
+      });
+
+      svg.innerHTML = html;
+      svg.querySelectorAll(".perf-bar").forEach(el => {
+        const r = rows[Number(el.dataset.idx)];
+        el.addEventListener("mousemove", e => showTip(e,
+          `<strong>${r.name}</strong><br/>ROC-AUC: ${r.roc_auc.toFixed(5)}<br/>Accuracy: ${r.accuracy.toFixed(5)}<br/>Balanced Acc: ${r.balanced_accuracy.toFixed(5)}<br/>Log Loss: ${r.log_loss.toFixed(5)}`
+        ));
+        el.addEventListener("mouseleave", hideTip);
+      });
+    }
+
+    // Wire controls
+    document.querySelectorAll("#rtScaleGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#rtScaleGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        rtScale = btn.dataset.scale;
+        renderRuntime();
+      });
+    });
+
+    document.querySelectorAll("#rtFilterGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#rtFilterGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        rtFilter = btn.dataset.rtfilter;
+        renderRuntime();
+      });
+    });
+
+    document.querySelectorAll("#metricGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#metricGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeMetric = btn.dataset.metric;
+        renderPerformance();
+      });
+    });
+
+    document.querySelectorAll("#zoomGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#zoomGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        zoomMode = btn.dataset.zoom;
+        renderPerformance();
+      });
+    });
+
+    document.querySelectorAll("#perfFilterGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#perfFilterGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        perfFilter = btn.dataset.perffilter;
+        renderPerformance();
+      });
+    });
+
+    document.querySelectorAll("#perfTable th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) sortAsc = !sortAsc;
+        else { sortKey = key; sortAsc = key === "log_loss" || key === "name" || key === "family"; }
+        renderPerformance();
+      });
+    });
+
+    renderRuntime();
+    renderPerformance();
+
+    const tabarenaTop10 = [
+      { rank: 1, name: "LimiX-2-1016", org: "Stable AI & Tsinghua University", elo: 2000, ci: "+140 / −87", improv: 3.5, fit: 31.24, infer: 8.398, free: false, license: "StableAI LimiX Non-Commercial License v1.0 ($)" },
+      { rank: 2, name: "Kumo-Tabular", org: "NVIDIA", elo: 1973, ci: "+158 / −97", improv: 4.5, fit: 2.39, infer: 0.253, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 3, name: "Kumo-Tabular-Medium", org: "NVIDIA", elo: 1909, ci: "+103 / −74", improv: 6.0, fit: 1.37, infer: 0.151, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 4, name: "Seldon", org: "Neuralk-AI", elo: 1905, ci: "+150 / −99", improv: 5.4, fit: 1.78, infer: 0.124, free: false, license: "Seldon Research and Evaluation License ($)" },
+      { rank: 5, name: "TabPFN-3.5", org: "Prior Labs", elo: 1869, ci: "+98 / −64", improv: 7.6, fit: 1.84, infer: 0.473, free: false, license: "TabPFN-3.5 License v1.0 (non-commercial) ($)" },
+      { rank: 6, name: "Inpriora", org: "Inpriora (Ant Group)", elo: 1831, ci: "+97 / −64", improv: 7.5, fit: 1.07, infer: 0.063, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 7, name: "Seldon-Mini", org: "Neuralk-AI", elo: 1818, ci: "+84 / −64", improv: 8.3, fit: 0.56, infer: 0.036, free: false, license: "Seldon Research and Evaluation License ($)" },
+      { rank: 8, name: "Kumo-Tabular-Small", org: "NVIDIA", elo: 1801, ci: "+77 / −54", improv: 9.0, fit: 0.80, infer: 0.092, free: true, license: "Open / Commercial OK (no $ restriction)" },
+      { rank: 9, name: "TabFM", org: "Google Research", elo: 1792, ci: "+101 / −98", improv: 6.6, fit: 16.12, infer: 6.653, free: false, license: "TabFM Non-Commercial License v1.0 ($)" },
+      { rank: 10, name: "Causilo", org: "Nums AI", elo: 1785, ci: "+78 / −49", improv: 9.2, fit: 0.68, infer: 0.104, free: false, license: "Causilo License v1.0 (non-commercial weights) ($)" },
+    ];
+
+    let taFilter = "all";
+    let taSortKey = "rank";
+    let taSortAsc = true;
+
+    function renderTabArena() {
+      let rows = tabarenaTop10.filter(r =>
+        taFilter === "all" ? true : taFilter === "free" ? r.free : !r.free
+      );
+      rows = [...rows].sort((a, b) => {
+        const va = a[taSortKey], vb = b[taSortKey];
+        if (typeof va === "string") return taSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        if (typeof va === "boolean") return taSortAsc ? (va === vb ? 0 : va ? -1 : 1) : (va === vb ? 0 : va ? 1 : -1);
+        return taSortAsc ? va - vb : vb - va;
+      });
+
+      document.getElementById("tabarenaBody").innerHTML = rows.map(r => {
+        const statusBadge = r.free
+          ? `<span class="badge badge-cuda">Free (Commercial OK)</span>`
+          : `<span class="badge badge-cpu">Non-Commercial ($)</span>`;
+        const testedTag = (r.name === "Kumo-Tabular-Medium" || r.name === "Kumo-Tabular-Small")
+          ? ` <span class="badge badge-tree">In Notebook</span>` : "";
+        return `
+          <tr>
+            <td class="num"><strong>${r.rank}</strong></td>
+            <td><strong>${r.name}</strong>${testedTag}</td>
+            <td style="color:var(--muted);">${r.org}</td>
+            <td class="num"><strong>${r.elo}</strong> <span style="color:var(--muted); font-size:0.8rem;">(${r.ci})</span></td>
+            <td class="num">${r.improv.toFixed(1)}%</td>
+            <td class="num">${r.fit.toFixed(2)}</td>
+            <td class="num">${r.infer.toFixed(3)}</td>
+            <td>${statusBadge}</td>
+            <td style="color:var(--muted); font-size:0.83rem;">${r.license}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.querySelectorAll("#taFilterGroup button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#taFilterGroup button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        taFilter = btn.dataset.tafilter;
+        renderTabArena();
+      });
+    });
+
+    document.querySelectorAll("#tabarenaTable th[data-tasort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.tasort;
+        if (taSortKey === key) taSortAsc = !taSortAsc;
+        else { taSortKey = key; taSortAsc = key === "rank" || key === "name" || key === "org" || key === "improv"; }
+        renderTabArena();
+      });
+    });
+
+    renderTabArena();
+  </script>
+</body>
+</html>
